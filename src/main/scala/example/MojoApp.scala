@@ -16,6 +16,8 @@ protected trait SensorValue {
   val timeStamp: DateTime
   //todo: Map & FlatMap
 }
+protected trait MeasurableValue
+
 case class NumberOfSamples(number: Int) extends SensorValue {
   override val timeStamp: Imports.DateTime = DateTime.now()
 }
@@ -29,8 +31,8 @@ object NumberOfSamples {
   }
 }
 
-case class DegreesCelsius(degrees: Float)
-case class DeciDegreeCelsius(deci: Int)
+case class DegreesCelsius(degrees: Float) extends MeasurableValue
+case class DeciDegreeCelsius(deci: Int) extends MeasurableValue
 object DeciDegreeCelsius {
   implicit def deciToDegrees(
       deciDegrees: DeciDegreeCelsius
@@ -46,8 +48,8 @@ object Temperature {
   }
 }
 
-case class Grams(grams: Float)
-case class MilliGrams(milli: Int)
+case class Grams(grams: Float) extends MeasurableValue
+case class MilliGrams(milli: Int) extends MeasurableValue
 object MilliGrams {
   implicit def milliToGrams(
       milliGrams: MilliGrams
@@ -91,12 +93,12 @@ object Calculations {
       DateTime.now()
     )
 
-  def calculate[A, B](
-      sensorValue: SensorValue
-  )(calculationValue: CalculationValue[A])(
-      f: SensorValue => CalculationValue[A] => CalculationValue[B]
-  ): CalculationValue[B] = {
-    val newCalculation = f(sensorValue)(calculationValue)
+  def calculate[A <: SensorValue, B <: MeasurableValue, C](
+      sensorValue: A
+  )(measurableValue: B)(
+      f: A => B => CalculationValue[C]
+  ): CalculationValue[C] = {
+    val newCalculation = f(sensorValue)(measurableValue)
     //oldest timestamp
     CalculationValue(
       newCalculation.value,
