@@ -3,13 +3,13 @@ package example
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import Calculations._
-import org.joda.time.DateTime
 
 class MojoSpec extends AnyFlatSpec with Matchers {
 
   val containerWeight: ContainerWeight = ContainerWeight(1000)
   Thread.sleep(1000)
   val numberOfSamples: NumberOfSamples = NumberOfSamples(6)
+  Thread.sleep(1000)
   val temperature: Temperature = Temperature(22)
   val temperatureTimesWeight: Temperature => Grams => CalculationValue[Grams] =
     (temperature: Temperature) =>

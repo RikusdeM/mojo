@@ -16,7 +16,7 @@ case class Temperature(temp: DeciDegreeCelsius) extends SensorValue {
   private val degreesCelsius: Float = temp.degrees
 }
 object Temperature {
-  def apply(deciDegrees: Int) = {
+  def apply(deciDegrees: Int): Temperature = {
     new Temperature(DeciDegreeCelsius(deciDegrees))
   }
 }
