@@ -9,7 +9,9 @@ class MojoSpec extends AnyFlatSpec with Matchers {
   "The Mojo object" should "get the mojo" in {
 
     val containerWeight: ContainerWeight = ContainerWeight(1000)
+    Thread.sleep(1000)
     val numberOfSamples: NumberOfSamples = NumberOfSamples(6)
+    Thread.sleep(1000)
     val temperature: Temperature = Temperature(10)
 
     val temperatureTimesWeight = (temperature:Temperature) => (grams:Grams) => {
@@ -22,6 +24,14 @@ class MojoSpec extends AnyFlatSpec with Matchers {
     } yield {
       r2
     }
+
+    println(s"$containerWeight : ${containerWeight.timeStamp.toString()}")
+    println(s"$numberOfSamples : ${numberOfSamples.timeStamp.toString()}")
+    println(s"$temperature : ${temperature.timeStamp.toString()}")
+
+    val avg = avgWeightPerSample(containerWeight)(numberOfSamples)
+    println(avg)
+
 
     println(result)
 

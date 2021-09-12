@@ -70,10 +70,16 @@ case class Mojo() extends SensorValue {
 }
 
 case class CalculationValue[A](value: A, timeStamp: DateTime) {
+  import Calculations._
   def map[B](f: A => B): CalculationValue[B] =
-    CalculationValue(f(value), DateTime.now())
+    CalculationValue(f(value), this.timeStamp)
   def flatMap[B](f: A => CalculationValue[B]): CalculationValue[B] = {
-    f(value)
+    val newValue = f(value)
+    CalculationValue(
+      newValue.value,
+      oldestTimestamp(this.timeStamp :: newValue.timeStamp :: Nil)
+        .getOrElse(DateTime.now())
+    )
   }
 }
 
@@ -90,7 +96,9 @@ object Calculations {
   )(numberOfSamples: NumberOfSamples): CalculationValue[Grams] =
     CalculationValue[Grams](
       Grams(containerWeight.weight.grams / numberOfSamples.number),
-      DateTime.now()
+      oldestTimestamp(
+        containerWeight.timeStamp :: numberOfSamples.timeStamp :: Nil
+      ).getOrElse(DateTime.now())
     )
 
   def calculate[A <: SensorValue, B <: MeasurableValue, C](
