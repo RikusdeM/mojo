@@ -14,7 +14,6 @@ object MojoApp extends App {
 
 protected trait SensorValue {
   val timeStamp: DateTime
-  //todo: Map & FlatMap
 }
 protected trait MeasurableValue
 
@@ -107,7 +106,6 @@ object Calculations {
       f: A => B => CalculationValue[C]
   ): CalculationValue[C] = {
     val newCalculation = f(sensorValue)(measurableValue)
-    //oldest timestamp
     CalculationValue(
       newCalculation.value,
       oldestTimestamp(sensorValue.timeStamp :: newCalculation.timeStamp :: Nil)
