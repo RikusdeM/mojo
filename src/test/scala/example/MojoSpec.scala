@@ -76,8 +76,8 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
     "return the amount [Kg/s]" in {
 
     /**
-     * https://www.engineeringtoolbox.com/evaporation-water-surface-d_690.html
-     */
+      * https://www.engineeringtoolbox.com/evaporation-water-surface-d_690.html
+      */
 
     val temperature: Temperature = Temperature(250)
 
@@ -141,46 +141,8 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       c3 <- calculate(saturation)(humidityRatio)(saturationMinusHumidityRatio)
       c4 <- calculateMeasurable(c2)(c3)(evaporationTempo)
     } yield {
-      println("C1 :" + c1)
-      println("C2 :" + c2)
-      println("C3 :" + c3)
       c4
     }
-
-    println(result)
-
-  }
-
-  "when bla bla" should
-    "bla bla" in {
-    val sensorVal = sensorValueSupport()
-    val measurableValue = mock[MeasurableValue]
-    val calculationValue = mock[CalculationValue[MeasurableValue]]
-
-  }
-  private def sensorValueSupport(): SensorValue = {
-    val sensorValue = mock[SensorValue]
-    sensorValue.timeStamp returns DateTime.now()
-    sensorValue
-  }
-  private def numberOfSamplesSupport(): NumberOfSamples = {
-    val numberOfSamples = mock[NumberOfSamples]
-    numberOfSamples.number returns 6
-    numberOfSamples.timeStamp returns DateTime.now()
-  }
-  private def ContainerWeightSupport(): ContainerWeight = {
-    val containerWeight = mock[ContainerWeight]
-    containerWeight.weight returns MilliGrams(1000)
-    containerWeight.weight.milli returns 1000
-    containerWeight.weight.grams returns 1
-    containerWeight.timeStamp returns DateTime.now()
-    containerWeight
-  }
-  private def TemperatureSupport(): Temperature = {
-    val temperature = mock[Temperature]
-    temperature.temp returns DeciDegreeCelsius(20)
-    temperature.temp.deci returns 20
-    temperature.temp.degrees returns 2
-    temperature
+    result === CalculationValue(0.046565413, temperature.timeStamp)
   }
 }
