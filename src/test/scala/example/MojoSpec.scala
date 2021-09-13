@@ -2,9 +2,11 @@ package example
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.mockito.scalatest.IdiomaticMockito
 import Calculations._
+import com.github.nscala_time.time.Imports.DateTime
 
-class MojoSpec extends AnyFlatSpec with Matchers {
+class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   val containerWeight: ContainerWeight = ContainerWeight(1000)
   Thread.sleep(1000)
@@ -68,5 +70,117 @@ class MojoSpec extends AnyFlatSpec with Matchers {
       containerWeight.timeStamp
     )
 
+  }
+
+  "Calculating the evaporation of samples from the surface of the container" should
+    "return the amount [Kg/s]" in {
+
+    /**
+     * https://www.engineeringtoolbox.com/evaporation-water-surface-d_690.html
+     */
+
+    val temperature: Temperature = Temperature(250)
+
+    val evaporationCoef
+        : Temperature => Speed => CalculationValue[Measurable[Float]] =
+      (temp: Temperature) => {
+        (windSpeed: Speed) => {
+          CalculationValue(
+            Measurable(
+              temp.temp.degrees + (19 * windSpeed.speed.metersPerSecond)
+            ),
+            DateTime.now()
+          )
+        }
+      }
+
+    val evaporationCoefTimesArea
+        : Measurable[Float] => Area => CalculationValue[Measurable[Float]] =
+      (evaporationCoef: Measurable[Float]) => {
+        (area: Area) => {
+          CalculationValue(
+            Measurable(evaporationCoef.measurable * area.area.metersSquare),
+            DateTime.now()
+          )
+        }
+      }
+
+    val saturationMinusHumidityRatio
+        : SaturationHumidityRatio => Measurable[Float] => CalculationValue[
+          Measurable[Float]
+        ] =
+      (saturation: SaturationHumidityRatio) => {
+        (humidityRatio: Measurable[Float]) => {
+          CalculationValue(
+            Measurable(
+              saturation.satHumRatio.kgPerKg - humidityRatio.measurable
+            ),
+            DateTime.now()
+          )
+        }
+      }
+
+    val evaporationTempo =
+      (evaporationCoefTimesArea: Measurable[Float]) => {
+        (saturationMinusHumidityRatio: Measurable[Float]) => {
+          CalculationValue(
+            (evaporationCoefTimesArea.measurable * saturationMinusHumidityRatio.measurable) / 3600,
+            DateTime.now()
+          )
+        }
+      }
+
+    val area = Area(MetersSquared(50.0f * 20.0f)) // metersSquared
+    val speed = Speed(MetersPerSecond(0.5f))
+    val humidityRatio = Measurable[Float](0.0098f)
+
+    val saturation = SaturationHumidityRatio(KgPerKg(0.014659f))
+    val result = for {
+      c1 <- calculate(temperature)(speed)(evaporationCoef)
+      c2 <- calculateMeasurable(c1)(area)(evaporationCoefTimesArea)
+      c3 <- calculate(saturation)(humidityRatio)(saturationMinusHumidityRatio)
+      c4 <- calculateMeasurable(c2)(c3)(evaporationTempo)
+    } yield {
+      println("C1 :" + c1)
+      println("C2 :" + c2)
+      println("C3 :" + c3)
+      c4
+    }
+
+    println(result)
+
+  }
+
+  "when bla bla" should
+    "bla bla" in {
+    val sensorVal = sensorValueSupport()
+    val measurableValue = mock[MeasurableValue]
+    val calculationValue = mock[CalculationValue[MeasurableValue]]
+
+  }
+  private def sensorValueSupport(): SensorValue = {
+    val sensorValue = mock[SensorValue]
+    sensorValue.timeStamp returns DateTime.now()
+    sensorValue
+  }
+  private def numberOfSamplesSupport(): NumberOfSamples = {
+    val numberOfSamples = mock[NumberOfSamples]
+    numberOfSamples.number returns 6
+    numberOfSamples.timeStamp returns DateTime.now()
+  }
+  private def ContainerWeightSupport(): ContainerWeight = {
+    val containerWeight = mock[ContainerWeight]
+    containerWeight.weight returns MilliGrams(1000)
+    containerWeight.weight.milli returns 1000
+    containerWeight.weight.grams returns 1
+    containerWeight.timeStamp returns DateTime.now()
+    containerWeight
+  }
+  private def TemperatureSupport(): Temperature = {
+    val temperature = mock[Temperature]
+    temperature.temp returns DeciDegreeCelsius(20)
+    temperature.temp.deci returns 20
+    temperature.temp.degrees returns 2
+    temperature
   }
 }

@@ -33,4 +33,18 @@ object Calculations {
         .getOrElse(DateTime.now())
     )
   }
+
+  def calculateMeasurable[A <: MeasurableValue, B <: MeasurableValue, C](
+      measurableValue_1: A
+  )(measurableValue_2: B)(
+      f: A => B => CalculationValue[C]
+  ): CalculationValue[C] = {
+    val newCalculation = f(measurableValue_1)(measurableValue_2)
+    CalculationValue(
+      newCalculation.value,
+      oldestTimestamp(newCalculation.timeStamp :: Nil)
+        .getOrElse(DateTime.now())
+    )
+  }
+
 }
