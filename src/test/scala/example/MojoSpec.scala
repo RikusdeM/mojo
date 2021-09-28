@@ -23,14 +23,14 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       }
 
   "The AvgWeightPerSample calculation" should
-    "contain the avg weight per sample using the last timestamp" in {
+    "contain the avg weight per sample using the oldest timestamp" in {
 
     println(s"$containerWeight : ${containerWeight.timeStamp.toString()}")
     println(s"$numberOfSamples : ${numberOfSamples.timeStamp.toString()}")
 
     val avg = avgWeightPerSample(containerWeight)(numberOfSamples)
     println(avg)
-    avg === CalculationValue(Grams(0.16666667f), avg.timeStamp)
+    avg === CalculationValue(Grams(0.16666667f), containerWeight.timeStamp)
   }
 
   "Combining calculations of AvgWeight per sample with Temperature" should
