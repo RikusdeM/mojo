@@ -7,19 +7,32 @@ object Calculations {
 
   def oldestTimestamp(
       timeStamps: List[DateTime]
-  ): Option[github.nscala_time.time.Imports.DateTime] = {
-    timeStamps.sorted.headOption
+  ): github.nscala_time.time.Imports.DateTime = {
+    timeStamps match {
+      case lst if lst.nonEmpty => lst.min
+      case _                   => DateTime.now()
+    }
   }
 
   def avgWeightPerSample(
       containerWeight: ContainerWeight
-  )(numberOfSamples: NumberOfSamples): CalculationValue[Grams] =
-    CalculationValue[Grams](
-      Grams(containerWeight.weight.grams / numberOfSamples.number),
-      oldestTimestamp(
-        containerWeight.timeStamp :: numberOfSamples.timeStamp :: Nil
-      ).getOrElse(DateTime.now())
-    )
+  )(numberOfSamples: NumberOfSamples): CalculationValue[Grams] = {
+    if (numberOfSamples.number != 0) {
+      CalculationValue[Grams](
+        Grams(containerWeight.weight.grams / numberOfSamples.number),
+        oldestTimestamp(
+          containerWeight.timeStamp :: numberOfSamples.timeStamp :: Nil
+        )
+      )
+    } else {
+      CalculationValue[Grams](
+        Grams(0),
+        oldestTimestamp(
+          containerWeight.timeStamp :: numberOfSamples.timeStamp :: Nil
+        )
+      )
+    }
+  }
 
   def calculate[A <: SensorValue, B <: MeasurableValue, C](
       sensorValue: A
@@ -30,7 +43,6 @@ object Calculations {
     CalculationValue(
       newCalculation.value,
       oldestTimestamp(sensorValue.timeStamp :: newCalculation.timeStamp :: Nil)
-        .getOrElse(DateTime.now())
     )
   }
 
@@ -43,7 +55,6 @@ object Calculations {
     CalculationValue(
       newCalculation.value,
       oldestTimestamp(newCalculation.timeStamp :: Nil)
-        .getOrElse(DateTime.now())
     )
   }
 

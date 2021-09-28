@@ -30,7 +30,15 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
     val avg = avgWeightPerSample(containerWeight)(numberOfSamples)
     println(avg)
-    avg === CalculationValue(Grams(0.16666667f), containerWeight.timeStamp)
+    assert(
+      avg == CalculationValue(Grams(0.16666667f), containerWeight.timeStamp)
+    )
+  }
+  it should "return a weight of 0 of the Number of samples are 0" in {
+    val avg = avgWeightPerSample(containerWeight)(NumberOfSamples(0))
+    println(avg)
+    assert(avg == CalculationValue(Grams(0.0f), containerWeight.timeStamp))
+
   }
 
   "Combining calculations of AvgWeight per sample with Temperature" should
@@ -42,7 +50,9 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
     } yield {
       r2
     }
-    result === CalculationValue(Grams(0.36666667f), containerWeight.timeStamp)
+    assert(
+      result == CalculationValue(Grams(0.36666667f), containerWeight.timeStamp)
+    )
   }
 
   "Combining calculations of AvgWeight per sample with Temperature and Mojo" should
@@ -65,9 +75,11 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       r3
     }
 
-    result === CalculationValue(
-      Temperature(DeciDegreeCelsius(36)),
-      containerWeight.timeStamp
+    assert(
+      result == CalculationValue(
+        Temperature(DeciDegreeCelsius(36)),
+        containerWeight.timeStamp
+      )
     )
 
   }
@@ -143,6 +155,6 @@ class MojoSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
     } yield {
       c4
     }
-    result === CalculationValue(0.046565413, temperature.timeStamp)
+    assert(result == CalculationValue(0.046565413f, temperature.timeStamp))
   }
 }

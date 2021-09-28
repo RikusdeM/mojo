@@ -11,7 +11,6 @@ case class CalculationValue[A](value: A, timeStamp: DateTime) {
     CalculationValue(
       newValue.value,
       oldestTimestamp(this.timeStamp :: newValue.timeStamp :: Nil)
-        .getOrElse(DateTime.now())
     )
   }
 }
